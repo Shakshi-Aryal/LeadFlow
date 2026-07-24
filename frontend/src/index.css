@@ -1,0 +1,31 @@
+@import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-serif: Georgia, serif;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased transition-colors duration-500;
+  }
+  
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-medium rounded-full shadow-lg shadow-indigo-500/20 text-white bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-500/40 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:shadow-indigo-900/50;
+  }
+  
+  .input-field {
+    @apply block w-full rounded-2xl border border-white/60 shadow-sm focus:border-indigo-400 focus:ring-indigo-400/20 focus:ring-4 sm:text-sm px-5 py-4 bg-white/50 backdrop-blur-md dark:bg-slate-900/50 dark:border-slate-700/50 dark:text-white dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20 transition-all duration-300 placeholder:text-slate-400 dark:placeholder:text-slate-500 hover:bg-white/70 dark:hover:bg-slate-800/70 outline-none;
+  }
+  
+  .card {
+    @apply bg-white/40 backdrop-blur-xl shadow-[0_8px_40px_rgb(0,0,0,0.04)] rounded-[2rem] border border-white/60 dark:bg-slate-900/40 dark:border-slate-700/50 dark:shadow-black/50;
+  }
+}
