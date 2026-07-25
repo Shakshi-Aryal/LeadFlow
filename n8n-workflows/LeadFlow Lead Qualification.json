@@ -1,0 +1,481 @@
+{
+  "name": "LeadFlow Lead Qualification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "leadflow",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -496,
+        -304
+      ],
+      "id": "9aa3e18a-bf07-430b-b6de-4c0a69f5c7b1",
+      "name": "Webhook",
+      "webhookId": "800f4bc9-f1dd-430d-9c2d-906020c358a0"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudflare.com/client/v4/accounts/[CONFIDENTIAL_CLOUDFLARE_ACCOUNT_ID]/ai/run/@cf/meta/llama-3.1-8b-instruct",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are LeadFlow AI, an intelligent lead qualification assistant.\\n\\nYour task is to evaluate incoming business leads using ONLY the scoring policy below.\\n\\nYou MUST follow the scoring policy exactly.\\nDo NOT invent new rules.\\nDo NOT ignore any rule.\\nDo NOT explain your calculations.\\nReturn ONLY valid JSON.\\n\\n==============================\\nSCORING POLICY\\n==============================\\n\\n1. Budget (Maximum 40 points)\\n- More than $10,000 ............. +40\\n- $5,000 - $10,000 .............. +30\\n- $1,000 - $4,999 ............... +20\\n- Less than $1,000 .............. +10\\n- Missing budget ................ +0\\n\\n2. Company Information (Maximum 15 points)\\n- Company provided .............. +15\\n- No company .................... +0\\n\\n3. Buying Intent (Maximum 30 points)\\n- Clear business need with specific project .... +30\\n- General business inquiry ..................... +15\\n- Vague or unclear request ..................... +5\\n\\n4. Contact Information (Maximum 15 points)\\n- Valid email ................... +10\\n- Phone number provided ......... +5\\n\\n==============================\\nCATEGORY\\n==============================\\n\\n90 - 100 = Hot\\n60 - 89  = Warm\\n0  - 59  = Cold\\n\\n==============================\\nOUTPUT FORMAT\\n==============================\\n\\nReturn ONLY valid JSON.\\n\\n{\\n  \\\"score\\\": number,\\n  \\\"category\\\": \\\"Hot\\\" | \\\"Warm\\\" | \\\"Cold\\\",\\n  \\\"reason\\\": \\\"One concise sentence explaining the result.\\\"\\n}\\n\\nDo not include markdown.\\nDo not use ```json.\\nDo not include reasoning.\\nDo not return any fields other than score, category and reason.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Name: {{$json.body.name}}\\nEmail: {{$json.body.email}}\\nPhone: {{$json.body.phone}}\\nCompany: {{$json.body.company}}\\nBudget: {{$json.body.budget}}\\nDescription: {{$json.body.description}}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -304,
+        -32
+      ],
+      "id": "5086c548-0b85-497e-844c-73dc3c4e8f66",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "K1LHrulLGH1khPfF",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "495600fc-dc99-471e-9bc6-e334fcc8e05a",
+              "name": "score",
+              "value": "={{ $json.result.response.score }}",
+              "type": "number"
+            },
+            {
+              "id": "2ef4a108-5822-4d80-a143-1d58d07a5843",
+              "name": "category",
+              "value": "={{ $json.result.response.category }}",
+              "type": "string"
+            },
+            {
+              "id": "9f6e2f5c-b3ca-4eec-91fd-48825223acf8",
+              "name": "reason",
+              "value": "={{ $json.result.response.reason }}",
+              "type": "string"
+            },
+            {
+              "id": "bcd16c49-13f4-4048-8bb3-ef69420157d1",
+              "name": "Name",
+              "value": "={{$node[\"Webhook\"].json.body.name}}",
+              "type": "string"
+            },
+            {
+              "id": "99b4f984-cede-4234-90dc-e3af0c9930b0",
+              "name": "Email",
+              "value": "={{$node[\"Webhook\"].json.body.email}}",
+              "type": "string"
+            },
+            {
+              "id": "7ba46a50-2110-4490-8d4a-b28a3b9e14bf",
+              "name": "Phone",
+              "value": "={{$node[\"Webhook\"].json.body.phone}}",
+              "type": "string"
+            },
+            {
+              "id": "957e7694-6e7f-4d12-9a19-e228ea9bace0",
+              "name": "Company",
+              "value": "={{$node[\"Webhook\"].json.body.company}}",
+              "type": "string"
+            },
+            {
+              "id": "03da842a-e862-4ad3-b606-722e6e62aae2",
+              "name": "=Budget",
+              "value": "={{$node[\"Webhook\"].json.body.budget}}",
+              "type": "string"
+            },
+            {
+              "id": "23ded017-c0ff-4d9a-a484-b729a97ead77",
+              "name": "Description",
+              "value": "={{$node[\"Webhook\"].json.body.description}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -64,
+        -32
+      ],
+      "id": "9b349bf1-35cb-49ee-b340-95466ac5bfe2",
+      "name": "Parse AI Result"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9cb2e776-f4f0-48ed-8c86-d330983bd14a",
+                    "leftValue": "={{$json.category}}",
+                    "rightValue": "Hot",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ee732841-cc1e-4af1-a953-3202d4928de6",
+                    "leftValue": "={{$json.category}}",
+                    "rightValue": "Warm",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0596ab8b-c652-4b5b-bce0-e031bf7ed9ab",
+                    "leftValue": "={{$json.category}}",
+                    "rightValue": "Cold",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -336
+      ],
+      "id": "3bed14cc-fd7f-4b71-a643-a59b3b88d811",
+      "name": "Lead Category"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "[CONFIDENTIAL_GOOGLE_SHEET_ID]",
+          "mode": "list",
+          "cachedResultName": "LeadFlow Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[CONFIDENTIAL_GOOGLE_SHEET_ID]/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/[CONFIDENTIAL_GOOGLE_SHEET_ID]/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{$now}}",
+            "Name": "={{$json.Name}}",
+            "Email": "={{$json.Email}}",
+            "Phone": "={{$json.Phone}}",
+            "Company": "={{$json.Company}}",
+            "Budget": "={{$json.Budget}}",
+            "Description": "={{$json.Description}}",
+            "Score": "={{$json.score}}",
+            "Category": "={{$json.category}}",
+            "Reason": "={{$json.reason}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        528,
+        96
+      ],
+      "id": "c096270c-5a55-4759-92cd-84fb747a75d7",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WV33BBjsxz3mubJB",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        160,
+        -320
+      ],
+      "id": "98a9340c-eb1a-4e6d-a8cd-2d01cbd38b62",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "sendTo": "[CONFIDENTIAL_EMAIL_ADDRESS]",
+        "subject": "={{ \"🔥 HOT LEAD - \" + $json.Name }}",
+        "emailType": "text",
+        "message": "={{`A new HOT lead has been qualified by LeadFlow AI.\n\n━━━━━━━━━━━━━━━━━━━━━━\n\nLead Information\n\nName: ${$json.Name}\n\nCompany: ${$json.Company}\n\nEmail: ${$json.Email}\n\nPhone: ${$json.Phone}\n\nBudget: $${$json.Budget}\n\n━━━━━━━━━━━━━━━━━━━━━━\n\nAI Qualification\n\nScore: ${$json.score}/100\n\nCategory: ${$json.category}\n\nReason: ${$json.reason}\n\n━━━━━━━━━━━━━━━━━━━━━━\n\nProject Description:\n${$json.Description}\n\n━━━━━━━━━━━━━━━━━━━━━━\n\nView all leads in Google Sheets:\nhttps://docs.google.com/spreadsheets/d/[CONFIDENTIAL_GOOGLE_SHEET_ID]/edit?gid=0#gid=0\n\nGenerated automatically by LeadFlow\n`}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        704,
+        -320
+      ],
+      "id": "f2203e49-9f70-424e-b61d-2df296087dce",
+      "name": "Send a message",
+      "webhookId": "c61d5e0c-4046-4a34-a682-48341a157f43",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "wBXoDY2OSg1ycJMn",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Result": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lead Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Category": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "beb3aab8-363b-483d-bc63-e98f1d961ff8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "df23e782c1782068f2f64ac593fbf415acfb1f0f9deb7fd8443dedb11d9164a8"
+  },
+  "nodeGroups": [],
+  "id": "Ng04UbtvmtpKwYA7",
+  "tags": []
+}

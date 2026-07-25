@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || 'https://aryalgt.app.n8n.cloud/webhook/leadflow';
+const WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || '[CONFIDENTIAL_WEBHOOK_URL]';
 
 const apiClient = axios.create({
   baseURL: WEBHOOK_URL,
